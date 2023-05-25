@@ -34,6 +34,8 @@
 * Branching and Loops
 * Functions
 ## Appendix
+* pBASIC Language Specification
+* pBASIC Language Grammar
 * pVM Instruction Set
 
 

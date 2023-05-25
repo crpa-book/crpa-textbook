@@ -53,8 +53,9 @@ We will get through these modules and implement them for our language in the nex
 
 ## Language  Paradigms & Terminology
 
+
 ## petiteBASIC
-Through this little book, we will implement our little programming language named petiteBASIC (*petite for little in french*). It's inspired by the honoured 60-year-old BASIC language and influenced by popular dialects like FreeBasic and sisters. The language is meant to be simple and be an application to what we will learn through the chapters.
+Through this little book, we will implement our little programming language named petiteBASIC (*petite for 'little' in french*). It's inspired by the honoured 60-year-old BASIC language and influenced by popular dialects like FreeBasic and sisters. The language is meant to be simple and be an application to what we will learn through the chapters.
 Here are some sneak peaks of the syntax and main features for the hyping you, but you have to know that languages are not described by their features but with a notation that explains how grammar is checked and expressions are evaluated, and we will describe the language more formally in the next chapters.
 
 ```basic
@@ -65,7 +66,7 @@ print("Hello, World!") ' How could we even forget it!
 num age = read()   'pBASIC is weak typed so str can be converted to num
 
 ' variable declaration
-num myNum = 15 
+num number_variable = 15 
 str myName =  "john"
 
 
