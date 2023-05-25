@@ -84,3 +84,6 @@ while n != 0
 end while
 ```
 > Code example for petiteBASIC
+
+## petiteVM
+In this book, we will be implementing a virtual machine for petiteBASIC called petiteVM (pVM), our own programming language. By creating a virtual machine, we can execute petiteBASIC programs on different platforms, making them portable and flexible. Implementing a virtual machine offers educational value, providing insights into language execution, memory management, and instruction interpretation. It allows us to define our own instructions and bytecode representation, enabling language extensions and customization. By embarking on this journey, we will enhance our understanding of compiler construction and gain practical experience in building a crucial component of a programming language. Let's delve into the captivating world of virtual machines and begin our exploration!
