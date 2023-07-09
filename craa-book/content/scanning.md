@@ -41,17 +41,51 @@ The word 'lex' comes from greek word 'λέξις' *(lexis)* meaning 'word'. So s
 ```
 
 ## Regular Languages and Expressions
-We mentioned that the scanner's job is to tokenize the input string and to check whether a lexical word belongs to one of our lexical classes/rules. So we can consider the scanner as a **machine** and the rules are the **grammar** of our language, a theortical machine that deals with our strings as inputs and checks if they are grammarly correct. Let's get with  a bit of computer science wih Automata & Langauges theory! Automata theory is the study of abstract machines and their computational abilities. It analyzes formal languages and classifies them based on the computational models needed to recognize or generate them. It has applications in areas such as compiler design and natural language processing.
+We mentioned that the scanner's job is to tokenize the input string and to check whether a lexical word belongs to one of our **lexical rules**. So we can consider the scanner as a **machine** and the rules are the **grammar** of our language, a theortical machine that deals with our strings as inputs and checks if they are grammarly correct. Let's get with  a bit of computer science wih Automata & Langauges theory! Automata theory is the study of abstract machines and their computational abilities. It analyzes formal languages and classifies them based on the computational models needed to recognize or generate them. It has applications in areas such as compiler design and natural language processing.
+A finite automaton has
+### Finite Automata
+We start with the simplest computer machine model called **finite automaton** or **finite state machine (FSM)**. These computer models are abstract which means we are not going to build it in the physical world, just on paper, describing it's functionality: Detecting patterns from set of inputs, *in our compiler construction journey it's the characters set*. These models limitations which a higher level of models can overcome them in the next chapters.  
+Consider the following figure of a simple FSM of a door with a button, so we can extract the main characharistics of such machines and describe how it works:  
+![](images/chp2/fig1.png)  
+A finite automaton has:
+* finite set of states : {`open`, `closed`}
+* set of inputs (alphabet) that transfer from a state to another: {`PRESS`}
 
+The door has a button, it understand only one input (a press) that control it's state. Pressing the button while it's closed will make it open and vice versa. The set of valid inputs are just pressing the button, *Is there something else?* The set of a machine inputs called **alphabet**  of the language. A language has alphabet and rules of inputs inserted to the machine.
+A finite automoton has also optional **final (accepting) states** which denote the last step or halting the machine.  
+
+#### Finite Automata Example
+The following finite automata *accepts* whose **grammar** is "Accept a binary string if and only if it ends with zeroes". A double circled state means it's the final state means if the last character in the string lead you to `A` the string belongs to this machine language and machine accepts and recognizes it.  
+![](images/chp2/fig2.png)  
+This machine accepts strings `010` and `100`,... but strings `0111` and `11001` won't pass, you can try and by your fingers over the figure. You can *generate* infinite set of strings that our machine can accept, that's called the **langauge**, that's why a grammar is called a **generator** and machine model called **acceptors**.  
+According to the figure, the machine has the following charasterics and make more terminology.
+* **Alphabet**: {`0`,`1`}
+* **Grammar**: "A binary string ending by zero"
+* **Language**: {`0`, `00`, `000`, `10`, `1100`, `010`, `01110`, `00001100`,...}
+
+```{admonition} Automata Terminology
+Listing the important terminologies we learnt for automata theory:
+* **Machine**: Abstract computational model.
+* **Alphabet**: Possible input character set.
+* **String**: Sequence of alphabet characters.
+* **Grammar**: The rule that machine recognizes/accepts the input string based on it and determine the language.
+* **Language**: Set of strings that machine accepts (applies the grammar).
+```
+
+```{note}
+Since this is not an automata theory book, I only covered the basics that we will need in our journey. you can extend your knowledge of this interesting field by reading further topics like: Deterministic & Non-Determinstic Finite Automata, Pumping Lemma, Grammars, Language Hierarchies, Closures...
+```
 ### Grammar
-A scanner should be able to detect token type (class) from string input, as example: ``_pi = 3.14`` would produce the tokens [`_pi`,`identifier`] [`=`,`equal`] [`3.14`,`number`]. For the first token classified as `identifier`, we can define it's rule as "Sequence of alphabetical letters that can contain underscore". The third and the most interesting token has the type `number` and there's a rule that our hypothetical scanner follows to detect the token from a string. We could say the rule (according to pBASIC **syntax**) that a `number` is "Sequence of digits that optionally contains a dot", so `8502` is a valid number but neither `17.69.3` nor `12.` nor `6..9` are valid numbers. It's verbose to describe our lexical rules in English statements, we need a more concise and more formal way, and here comes **Regular Expressions**.
+A scanner should be able to detect token type (class) from string input, as example: ``_pi = 3.14`` would produce the tokens [`_pi`,`identifier`] [`=`,`equal`] [`3.14`,`number`]. For the first token classified as `identifier`, we can define it's rule as "Sequence of alphabetical letters that can contain underscore". The third and the most interesting token has the type `number` and there's a rule that our hypothetical scanner follows to detect the token from a string. We could say the rule (according to pBASIC **syntax**) that a `number` is "Sequence of digits that optionally contains a dot", so `8502` is a valid number but neither `17.69.3` nor `12.` nor `6..9` are valid numbers. Let's sketch a FA that accepts this grammar: ![](images/chp2/fig3.png)  
+It's verbose to describe our lexical rules in English statements, although we learnt a formal way for describing regular grammars which is finite automata but drawing graphs for simple grammar still cumbersome, imagine doing the FA for identifier rule, 26+ characters on one arrow!. We need a more concise and more formal way, and here comes **Regular Expressions**.
 
 ### Regular Expressions
 When it comes to describing regular langauges, regular expressions (Regex for short) is more concise to use. Regex is widely used in text processors for string searching algorithms and to detect and match patterns in sequence of characters (string) and that's what we need for our scanner to check whether the string matches our rules therfore it's lexically correct!  
 Regular Expressions are algebric notation that has it's own formal rules to describe the our patterns. 
 We will see that regular expressions are easy to type, and they tend to use relatively short descriptions for common languages that we want to represent. Of course, even a relatively small and precise specification for a language can be hard to come up with (or to understand). But at least with a regular expression, it is usually quick and easy to type once you have it.
 
-## Practical: Writing the scanner
+
+## Writing the scanner
 ### Numbers
 ### Keywords
 ### Identifiers
