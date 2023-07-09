@@ -1,0 +1,13 @@
+# Table of contents
+# Learn more at https://jupyterbook.org/customize/toc.html
+
+format: jb-book
+root: content/preface.md
+parts:
+  - caption: "Compilers Runthough: A Practical Approach"
+    chapters:
+      - file: content/introduction.md
+      - file: content/scanning.md
+  - caption: Appendices
+    chapters:
+      - file: content/A1-pbasic.md

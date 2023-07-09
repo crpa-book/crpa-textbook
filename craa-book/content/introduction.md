@@ -1,11 +1,3 @@
-# Preface
-When I started programming when I was 11 using VisualBasic.NET reading and going through the years with C#, C and C++ doing my hobby projects and started get fond of programming and curious about how specific products are made like browsers, operating systems and others but one of the applications I was always curious about was **Compilers**. These applications must be a magical creations created by those programming wizards, that's what I thought of them.  
-In my first year at college I decided to learn compilers construction. Did my searches, started to get into the glorious Dragon Book[1] barely understood the first chapter, although the book wasn't that impossible but it was more like a textbook that needs a professor or someone to help me to get through it, So after reading the highly-recommended Crafting Interpreters[2] I had an overview and was able to get more deeply in the topic and reading more books and doing more compilers and interpreters in my free time as hobby.  
-After writing my notes, I decided to write my own little book to be as a help for undergraduates and any one who is interested to learn the topic in a more straightforward way.
-
-# About Authors
-**TBD**
-
 # Chapter 1: Introduction
 ## Why would I learn compilers construction
 If you are a computer science student you are likely to have this course in one of your last semesters or you may be already a developer who's wondering why would I learn such a topic in both cases let me tell you why.  
@@ -56,9 +48,12 @@ We will get through these modules and implement them for our language in the nex
 
 ## petiteBASIC
 Through this little book, we will implement our little programming language named petiteBASIC (*petite for 'little' in french*). It's inspired by the honoured 60-year-old BASIC language and influenced by popular dialects like FreeBasic and sisters. The language is meant to be simple and be an application to what we will learn through the chapters.
-Here are some sneak peaks of the syntax and main features for the hyping you, but you have to know that languages are not described by their features but with a notation that explains how grammar is checked and expressions are evaluated, and we will describe the language more formally in the next chapters.
+Here are some sneak peaks of the syntax and main features for the hyping you.
+```{note}
+Languages are not described by their features but with a notation that explains how grammar is checked and expressions are evaluated, and we will describe the language more formally in the next chapters.
+```
 
-```basic
+```vb
 ' this is a comment
 
 ' Input/Output
@@ -84,7 +79,7 @@ while n != 0
     n--
 end while
 ```
-> Code example for petiteBASIC
+
 
 ## petiteVM
 In this book, we will be implementing a virtual machine for petiteBASIC called petiteVM (pVM), our own programming language. By creating a virtual machine, we can execute petiteBASIC programs on different platforms, making them portable and flexible. Implementing a virtual machine offers educational value, providing insights into language execution, memory management, and instruction interpretation. It allows us to define our own instructions and bytecode representation, enabling language extensions and customization. By embarking on this journey, we will enhance our understanding of compiler construction and gain practical experience in building a crucial component of a programming language. Let's delve into the captivating world of virtual machines and begin our exploration!

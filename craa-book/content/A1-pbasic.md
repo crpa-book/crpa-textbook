@@ -1,4 +1,4 @@
-# petiteBASIC Programming Guide
+# Appendix I: petiteBASIC Programming Guide
 petiteBASIC (pBASIC) is a simple programming language to be made through out this book. It's imperative, procedural, weak-typed and, static-typed.
 
 
