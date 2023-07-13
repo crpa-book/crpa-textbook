@@ -85,7 +85,429 @@ Regular Expressions are algebric notation that has it's own formal rules to desc
 We will see that regular expressions are easy to type, and they tend to use relatively short descriptions for common languages that we want to represent. Of course, even a relatively small and precise specification for a language can be hard to come up with (or to understand). But at least with a regular expression, it is usually quick and easy to type once you have it.
 
 
-## Writing the scanner
+## Writing The Scanner
+Let's start crafting our scanner, the first cornerstone of our compiler. First, We start with lexer class:
+```csharp
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace pBASICCompiler
+{
+    public class Lexer
+    {
+        // This will contain full source code
+        string _source;
+
+        public Lexer(string sourceCode)
+        {
+            _source = sourceCode;
+        }
+    }
+```
+> **Lexer.cs**
+
+The `lexer` class constructor takes the full source code, as you see in Main
+
+```csharp
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace pBASICCompiler
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            string source_text = File.ReadAllText("source.pb");
+
+            Lexer lexer = new Lexer(source_text);
+        }
+    }
+}
+```
+> Program.cs
+
+We store the file content that contains the source in `source_text`, the path we pass to the `lexer` constructor. The purpose of `lexer` class is to scan and get the tokens to use in the parsing phase (next chapter), so we start we need a class that encapsulates tokens.
+
+```csharp
+public class Token
+{
+    public TokenType Type { get; }
+    public string Value { get; }
+    public Token(TokenType type, string value)
+    {
+        Type = type;
+        Value = value;
+    }
+}
+```
+We mentioned that a token has a type and a string segment, which are represented as `Type` and `Value` properties respectively. `TokenType` is an enum for our token types.
+
+```csharp
+public enum TokenType
+{
+    // Name             // (Example) Value
+    None,
+    Identifier,         // my_var
+    Number,             // 3.14
+    Equal,              // =
+    NotEqual,           // !=
+    Greater,            // >
+    GreaterOrEqual,     // >=
+    Smaller,            // <
+    SmallerOrEqual,     // <=
+    SingleQuotation,    // '
+    DoubleQuotation,    // "
+    OpenParenthesis,    // (
+    CloseParenthesis,   // )
+    String,             // "Hello World"
+    Plus,               // +
+    Minus,              // -
+    Asterisk,           // *
+    Slash,              // /
+    DoubleEqual,        // ==
+    DoublePlus,         // ++
+    DoubleMinus,        // --
+    DoubleAsterisk,     // **
+    DoubleSlash,        // //
+    Bang,               // !
+    And,                // &
+    Or,                 // |
+    If,                 // if
+    Then,               // then
+    Else,               // else
+    End,                // end
+    While,              // while
+}
+```
+> **Lexer.cs**
+
+We need the tokenizing logic, a function that will process the source code and generates the tokens for us, we do ``Tokenize`` function that returns an array of `Token`s
+```csharp
+public Token[] Tokenize()
+{
+    // List of tokens to return
+    var tokens = new List<Token>();
+
+    // We will need to keep track of source code lines for reporting errors
+    int line = 1;
+
+    // 'pos' is the current position of the character, we will iterate over every character
+    // and applying the lexical rule according to the our grammar
+    for (int pos = 0; pos < _source.Length; pos++)
+    {
+        // For a little test, this will print every character in the source code surrounded
+        // by square brackets, this will give you a better view of what strings and what
+        // and what results we want.
+        Console.Write("[" + _source[pos] + "]");
+    }
+
+    return tokens.ToArray();
+}
+```
+Try it with a sample source code, it will print every character, this is a good start for now, iterating over every character because the character controls the analysis as we will see.  
+As `Tokenize()` returns an array of tokens, we will print it outside in `Program.cs`'s `Main()`
+```csharp
+public static void Main(string[] args)
+{
+    string source_text = File.ReadAllText("source.vb");
+
+    // Create new instance of Lexer class
+    Lexer lexer = new Lexer(source_text);
+    // Scan the given source code in consturctor, and return the tokens.
+    var tokens = lexer.Tokenize();
+
+    // Iterate over each token in the tokens to print them
+    foreach(var token in tokens)
+    {
+        // Print the tokens format as [type:value], i.e [number:40]
+        Console.Write($"[{token.Type}:{token.Value}] ");
+    }
+}
+```
 ### Numbers
-### Keywords
-### Identifiers
+To make our scanner recognize numbers, we need to specify the grammar of numbers. We mentioned numbers grammar as a "Sequence of digits that optionally contains a dot" but still not clear description so we use regular expressions so it will be `[0-9]+\.[0-9]*`. (return to Regular Expression section if you didn't understand it). Sketching the finite automata will get us the following:
+![](images/chp2/fig4.png)  
+We need to implement the RegEx/FA into code. We know that regular grammar is for character-level, so we iterat
+```csharp
+public Token[] Tokenize()
+{
+    // List of tokens to return
+    var tokens = new List<Token>();
+
+    // We will need to keep track of source code lines for reporting errors
+    int line = 1;
+
+    // 'pos' is the current position of the character, we will iterate over every character
+    // and applying the lexical rule according to the our grammar
+    for (int pos = 0; pos < _source.Length; pos++)
+    {
+        // We start by checking if the character is a number regex: 0-9
+        if (char.IsDigit(_source[pos])){
+            // This will track if a dot existed.
+            bool dot = false;
+            // We will build the number string, intialized by the current character
+            string number_string = _source[pos].ToString();
+            // Increase the character pointer since we read it.
+            pos++;
+
+            // While we are not pointing at the last character and the current char is a digit or a dot,
+            // we are safe, keep processing the number
+            while(pos < _source.Length && (char.IsDigit(_source[pos]) || _source[pos] == '.'))
+            {
+                // If the current chracter is a dot
+                if (_source[pos] == '.')
+                {
+                    // Check if we already read a dot before
+                    if (dot){
+                        // Report the error
+                        Console.WriteLine($"Illegal Number at line{line} @ {pos} char {_source[pos]})");
+
+                        // That source code has an issue, returns with the tokens we have, stop processing!
+                        return tokens.ToArray();
+                    }
+                    else{
+                        // Okay, so the next time, don't read a dot again!
+                        dot = true;
+                    }
+                }
+
+                // Append the current character to the string of numbers
+                number_string += _source[pos];
+
+                // Increase the character pointer since we read it.
+                pos++;         
+            }
+
+            // We are outside the loop, that means the condition is bypassed. No we a have  a number
+            // string stored in number_string. We add the recognized token to our tokens list.
+            tokens.Add(new Token(TokenType.Number, number));
+        }
+    }
+
+    return tokens.ToArray();
+}
+
+```
+> **Lexer.cs**: `Lexer` class
+
+Why not using a `double` instead of `string` for `number_string`? We will use `Convert.ToDouble()` method later, this will save us the need to implement our `string` to `double` converting algorithm.
+Read the code well, understand the comments, and compare the code logic to the finite automata above this will integrate all the knowledge.
+
+Try now runnning the application with various source code inputs of numbers and enjoy.
+Trying the following source code,
+```
+12 4 6.7 4856.12 1..5 5
+```
+outputs:
+```
+Illegal Number at line 1 @ 19 char (.)
+[Number:12] [Number:4] [Number:6.7] [Number:4856.12]
+```
+Yay! We made our scanner can recognize number, celebrate this! See how it groups it now as units and it can report the fragments that disobeyed our grammar and stopped the porcessing. Now we will continue recogizing other fragments that belongs to our language.
+
+### Special Characters
+There are special characters that are tokens as itself like `(` and `+` that will effect in the parser grammar and others that we don't care of recognizing them as tokens sometimes in our language but it effects the lexer state like `\n` (New Line) helps in tracking which line we are at now. Their grammar is easier to process, but I prefered to start with number processing because it's harder and gives a general view.  
+They act only as one character so it's RegEx is the character itself, and no need to sketch the finite automata for it because it's simple. So back to our `Tokenize()` function, implemnting them is so intutive:
+```csharp
+            tokens.Add(new Token(TokenType.Number, number));
+        }
+    } // End of number's if condition
+    else
+    {
+         // Switch over the current character
+        switch (_source[pos])
+        {
+             // It's a new line? increase the line counter, easy?
+            case '\n': line++; break;
+
+            // A single quotation means it's a comment so keep skipping characters till the end of the line
+            case '\'': while (_source[pos] != '\n') pos++; break;
+
+            // For greater sign, stuff gets a bit complicated
+            case '>':
+                // If the next character is an equal sign...
+                if (_source[pos + 1] == '=')
+                {
+                    // ... add a (>=) token to the list
+                    tokens.Add(new Token(TokenType.GreaterOrEqual, ">="));
+                    // move to the next character because we read the equal sign
+                    pos++;
+                }
+                else
+                    // otherwise, it's only a greater than token.
+                    tokens.Add(new Token(TokenType.Greater, ">")); 
+                break;
+
+            case '<':   // The same logic here...
+                if (_source[pos + 1] == '=')
+                {
+                    tokens.Add(new Token(TokenType.SmallerOrEqual, "<="));
+                    pos++;
+                }
+                else
+                    tokens.Add(new Token(TokenType.Smaller, "<"));
+                break;
+
+            case '=': // ...and here...
+                if (_source[pos + 1] == '=')
+                {
+                    tokens.Add(new Token(TokenType.DoubleEqual, "=="));
+                    pos++;
+                }
+                else
+                    tokens.Add(new Token(TokenType.Equal, "="));
+                break;
+
+            case '!': // ...and here too.
+                if (_source[pos + 1] == '=')
+                {
+                    tokens.Add(new Token(TokenType.NotEqual, "!="));
+                    pos++;
+                }
+                else
+                    tokens.Add(new Token(TokenType.Bang, "!"));
+                break;
+
+            // For the rest of single characters, just if it's the character in case
+            // add it's token, very simple.
+            case '+': tokens.Add(new Token(TokenType.Plus, "+")); break;
+            case '-': tokens.Add(new Token(TokenType.Minus, "-")); break;
+            case '*': tokens.Add(new Token(TokenType.Asterisk, "*")); break;
+            case '/': tokens.Add(new Token(TokenType.Slash, "/")); break;
+
+            case '&': tokens.Add(new Token(TokenType.And, "&")); break;
+            case '|': tokens.Add(new Token(TokenType.Or, "|")); break;
+
+            case '(': tokens.Add(new Token(TokenType.OpenParenthesis, "(")); break;
+            case ')': tokens.Add(new Token(TokenType.CloseParenthesis, ")")); break;
+
+        }
+    }
+    return tokens.ToArray();
+}
+```
+That's it, now let's try it as usual.
+Input:
+```
+12+3 !=4
+```
+Lexer output:
+```
+[Number:12] [Plus:+] [Number:3] [NotEqual:!=] [Number:4]
+```
+Everything seems to work correctly, now time for the next step.
+```{note}
+You saw that we ignored the single quote (') character as a token, because comments don't do such effect in the code logic but, it's still useful to consider it as a token for further processing. Some IDEs use the comments for generating code documentations like javaDoc or just showing a specific function description when hovering as example.
+```
+
+### Strings
+Here comes another partition in our tokens, Strings, Which is made of any sequence of characters starting and ending by a double quotation, Hold on you forgot that we can't accept new line character is one of the enclosed character, so it's a constraint that we have to care about. It's RegEx is `\"([^\"])*\"`, *I love RegEx so expressive and short!*. Now let's draw it's FA:
+![](images/chp2/fig5.png)
+Implementing it in code can be easy and intutive:
+```csharp
+        tokens.Add(new Token(TokenType.Number, number));
+    }
+    else if(_source[pos] == '\"')       // Strings
+    {
+        // We store our string value here
+        string string_token = "";
+        // Move to the next character, skipping the double quotation (")
+        pos++;
+
+        // While we didn't encounter another double quotation
+        while(_source[pos] != '\"')
+        {
+            // Append the current character to the string token
+            string_token += _source[pos];
+
+            // If the current token is a new line, and we didn't reach to the closing 
+            // double quotaiton mark then something is wrong, the string is not legal.
+            if (_source[pos] == '\n'){
+                Console.WriteLine($"Unclosed string at line{line} @ {pos} char {_source[pos]})");
+            }
+
+            // Increase the position pointer to next one.
+            pos++;
+        }
+
+        // Add the string token to the token list.
+        tokens.Add(new Token(TokenType.String, string_token));
+    } 
+```
+Testing time!
+Input:
+```
+15 * "test"
+```
+Output:
+```
+[Number:15] [Asterisk:*] [String:test]
+```
+Look how our scanner is growing!
+
+### Keywords and Identifiers
+Here comes the last part of our scanner. It's purpose to recognize identifiers and keywords. **Identifiers** are names of different symbols like variables, functions, and classes (but pBASIC doesn't have classes). The rule of naming symbols or grammar of identifiers according to our language is any sequence of letters or underscores: (`_pi`, `my_var`, `age`) and it's RegEx is `[A-Za-z_]+`. **Keywords*** are special fragments that has special effect on code logic like `if` it's used in if statements for implementing branches or `while` for the loop structure "while statements". When it comes for keywords grammar it's almost the same as identifier, it belongs to it's gramamr, `if` is belongs to `[A-Za-z_]+` so in our code implementation or FA graph we should handle keywords in a special way. Consider thefollowing FA:
+![](images/chp2/fig6.png)  
+In this FA, We handle the special keywords first by checking if it ends on one of they keywords we know and if still there are more characters then for sure it's an identifer, `if` is a keyowrd `ife` is an identifier. Implementing it in code is easy too, the FA seems tricky but in code it's easier.
+```csharp
+        tokens.Add(new Token(TokenType.String, string_token));
+    } 
+    // If the current character is a letter or it's underscore (_)
+    else if(char.IsLetter(_source[pos]) || _source[pos] == '_') 
+    {
+        // We store our identifier/keyword value here
+        string identifier = "";
+        
+        // while the position pointer is not past the length of the source code, and the 
+        // current character is a letter or an underscore, complete processing...
+        while(pos < _source.Length && (char.IsLetter(_source[pos]) || _source[pos] == '_'))
+        {
+            // Concatenate the accepted characters
+            identifier += _source[pos];
+            // Move to the next character
+            pos++;
+        }
+        // Because the outer for loop already does a pos++ so it will skip
+        // another character causing the same problem of numbers, so we decreament the
+        // position pointer
+        pos--;
+
+        // Now we collected the characters, let's check if it belongs to our keywords set
+        // by checking if that string exists in our map
+        if(_keywords.ContainsKey(identifier))
+            // Add it to our tokens according to the mapped token type
+            tokens.Add(new Token(_keywords[identifier], identifier));
+        else
+            // Otherwise it's an identifier, so add it as an identifer token 
+            tokens.Add(new Token(TokenType.Identifier, identifier));
+    }
+```
+Here comes my favorite part, as we covered all the lexical fragments of pBASIC language let's try the source code with a bigger snippet
+Input:
+```
+print("hello world")
+
+if 4 > 3 then
+	exit()
+end if
+```
+and it outputs:
+```
+[Identifier:print] [OpenParenthesis:(] [String:hello world] [CloseParenthesis:)] [If:if] [Number:4] [Greater:>] [Number:3] [Then:then] [Identifier:exit] [OpenParenthesis:(] [CloseParenthesis:)] [End:end] [If:if]
+```
+Awesome, our scanner is done and it spits all the tokens to us and can even report the problems, you should be proud of this!  
+If you combined all the FAs we showed you in a single unit (except special characters) that represents the full finite machine that models our scanner you will get this:
+![](images/chp2/fig7.png)
+Woah!, seperating them was a good idea for real!
+## Afterwords
+You've made your scanner now and it's alive and breathing. We went through the foundations of lexical analysis and understood what is happening behind the scenes. We covered the topics of automatas and abstract machines *Your scanner if it was a machine it will look like this*:  
+![](images/chp2/fig8.png)  
+But what now? you may notice something, the scanner is doing a good job at generating the tokens and reporting the errors, but regarding the errors, `print)4+` is a valid according to the lexical terms and grammars, but for our language it's completely erroreous! also we  Now we need to process these tokens to follow *a higher grammar* that's on the token and syntax level, and that's what the next chapter will about, **Parsing**.
