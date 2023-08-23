@@ -8,6 +8,7 @@ parts:
     chapters:
       - file: content/introduction.md
       - file: content/scanning.md
+      - file: content/parsing.md
   - caption: Appendices
     chapters:
       - file: content/A1-pbasic.md

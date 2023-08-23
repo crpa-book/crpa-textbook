@@ -1,6 +1,6 @@
 # Table of Contents
-## Part 1: Compiler Frontend (5 lectures)
-* Introduction (1 lecture)
+## Part 1: Compiler Frontend
+* Introduction (1 week)
     * About Authors
     * Preface
     * Why do we learn compilers?
@@ -9,30 +9,29 @@
     * Compiler phases
     * Language Paradigms and Terminology
     * petiteBASIC
-* Scanning (1 lecture)
+* Scanning (1 week)
     * What’s scanning/lexing?
-    * Regular Expressions (In OpenDSA)
-    * Regex
-    * Basic NFA/DFA*
-    * Implementation
-    * Tokenizing
-* Parsing (2 lectures)
+    * Tokens
+    * Regular Languages and Expressions
+    * Writing The Scanner
+* Parsing (2 week)
     * What’s parsing
     * Context-free grammars
-    * BNF/PEG
+    * BNF
     * Recursive Decent
-    * Semantic Analysis (1 lecture)
-    * Tree-walk Execution (2~3 lectures)
-## Part 2: Compiler Backend (5 lectures)
+    * Semantic Analysis
+    * Tree-walk Execution
+## Part 2: Compiler Backend (3 weeks)
 * Virtual Machine
     * Abstractions and Constraints
     * pVM Architecture
     * Intermediate Representations
     * Code Generation I
-* Strings, basic Input Output
-* Variables
-* Branching and Loops
-* Functions
+* Code Generations II:
+    * Strings, basic Input Output
+    * Variables
+    * Branching and Loops
+    * Functions
 ## Appendix
 * pBASIC Language Specification
 * pBASIC Language Grammar
