@@ -64,20 +64,7 @@ It's an assignment statement! it follows the syntax: an identifier followed by a
 <identifier> := [A-Za-z_]+
 <num>        := [0-9]+
 ```
-From the previous BNF, the `assignment` rule is what we described before, made of the `identifier` non-terminal followed by an equal sign and an `expression`. An `expression` non-terminal is defined to be either `num` "+" `num` or `num` "-" `num`. Note how optional productions using (`|`) operator. This BNF is not correct, because it only accepts `x = 8+6` but doesn't accept `x = x + 1` or `x = 1 + 2 + 3` so let's re-write the BNF with the new consideration.
-```bnf
-1. <assignment>    := <identifier> "=" <expr>
-2. <expr>          := <expr> "+" <expr> 
-3.                 | <expr> "-" <expr> 
-4.                 | <num> 
-5.                 | <identifier>
-```
-Now, giving the code `my_var =  15 + x - 6`. It starts with an `identifier` so going with rule 1, it expects an `=` after it, that's true, then an `expr` is expected. `expr` is made of 4 optional production rules. Rule 4 and 5 are not the ones we are looking for because `15 + x - 6` is not a `num` or an `identifier`. It can be made of rule 2, because `15` is the right hand `expr` followed by a `+` then left hand `expr` is the rule 3 `x - 6` which can be derived into `<identifier> "-" <num>"`. The following AST will make it more clear:
-![](images/chp3/fig3.png)  
-*I love building syntax trees, it shows the power of formal languages.*  
-Hold on! Why not going the opposite? choosing rule 3 first then rule 2, ending by deriving the rightmost `expr` first (`<expr> "-" "6"`) then going with rule 2 so it derives into `15 + x - 6`, it's the same but the direction of derivation is the opposite. The order of deriving from left or right the productions is called **associcativity** and it's our first concern of three concerns about our syntactic design.  
-Let's derive it from the right and see what 
-Let's support more arithmetic operators, adding multiplication and division our BNF for assignment will be:
+From the previous BNF, the `assignment` rule is what we described before, made of the `identifier` non-terminal followed by an equal sign and an `expression`. An `expression` non-terminal is defined to be either `num` "+" `num` or `num` "-" `num`. Note how optional productions using (`|`) operator. This BNF is not correct, because it only accepts `x = 8+6` but doesn't accept `x = x + 1` or `x = 1 + 2 + 3` so let's re-write the BNF with the new consideration. Let's support more arithmetic operators, adding multiplication and division our BNF for assignment will be:
 ```bnf
 1. <assignment>    := <identifier> "=" <expr>
 2. <expr>          := <expr> "+" <expr> 
@@ -87,6 +74,13 @@ Let's support more arithmetic operators, adding multiplication and division our 
 6.                 | <num> 
 7.                 | <identifier>
 ```
+Now, giving the code `my_var =  15 + x - 6`. It starts with an `identifier` so going with rule 1, it expects an `=` after it, that's true, then an `expr` is expected. `expr` is made of 4 optional production rules. Rule 4 and 5 are not the ones we are looking for because `15 + x - 6` is not a `num` or an `identifier`. It can be made of rule 2, because `15` is the right hand `expr` followed by a `+` then left hand `expr` is the rule 3 `x - 6` which can be derived into `<identifier> "-" <num>"`. The following AST will make it more clear:
+![](images/chp3/fig3.png)  
+*I love building syntax trees, it shows the power of formal languages.*  
+Hold on! Why not going the opposite? choosing rule 3 first then rule 2, ending by deriving the rightmost `expr` first (`<expr> "-" "6"`) then going with rule 2 so it derives into `15 + x - 6`, ______ is called **associcativity** and it's our first concern of three concerns about our syntactic design.  
+Let's derive it from the right and see what 
+
+
 Since most of tricks is with `expr` part let's focus on the following expression `4 + 6 * 2 - 1` it yields 15, if you are good with primary math, you will know PEDMAS rule, which you will do multiplicaiton first. so you need a special order for deriving because all `expr` rules are optional, here comes the second concern **precedence** which governs such problems. Continuing on the previous CFG, the next code `x + y * z`, if you try to left-most derive it, it ends with 2 different parse trees:
 ![](images/chp3/fig4.png)
 In both tree 1 & 2, I added numbers on the arrows to denote which rules used in derivation. Both trees accept and represent the code correctly, *I don't see the problem*, but that's wrong, the parser job is accept the code if it follows the grammar and to generate ASTs, but generating different ASTs means using different rules with same input even if it matched the same rules, means the our grammar is **ambiguous**, because different rules means different views and code generations. that's the third concern of defining our grammar. Let's see focus on the three problems and how to solve them.
@@ -98,6 +92,7 @@ In both tree 1 & 2, I added numbers on the arrows to denote which rules used in 
 **Statements vs Expression**
 ```
 ## Recrusive Descent
+
 ## Writing The Parser
 Remember that our parser's job is to take the tokens stream and generates the syntax tree and validates if it obeys our grammar rules. 
 ## Compiler Compilers

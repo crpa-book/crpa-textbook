@@ -19,8 +19,11 @@
     * Context-free grammars
     * BNF
     * Recursive Decent
-    * Semantic Analysis
-    * Tree-walk Execution
+    * Writing The Parser
+* Intermediate Representations
+    * Traversing trees
+    * Adding Semantics
+    * Interpreting
 ## Part 2: Compiler Backend (3 weeks)
 * Virtual Machine
     * Abstractions and Constraints
@@ -36,6 +39,5 @@
 * pBASIC Language Specification
 * pBASIC Language Grammar
 * pVM Instruction Set
-
 
 
